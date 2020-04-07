@@ -1,5 +1,5 @@
 {% set name = "extra-cmake-modules" %}
-{% set version = "5.67.0" %}
+{% set version = "5.68.0" %}
 {% set major_minor = ".".join(version.split(".")[:2]) %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://download.kde.org/stable/frameworks/{{ major_minor }}/extra-cmake-modules-{{ version }}.tar.xz
-  sha256: e803f8740819a5620095c161883c26aaf1267d6f919d547fdd6414e7cccc0150
+  sha256: 4d60869ca96a323b56f00b40c4728a70dfebe2132bbae040442a6a2ef90e2d6e
 
 build:
   number: 0
@@ -36,7 +36,7 @@ about:
   license: BSD-3-Clause
   license_family: BSD
   license_file: COPYING-CMAKE-SCRIPTS
-  summary: 'The Extra CMake Modules package, or ECM, adds to the modules provided by CMake.'
+  summary: The Extra CMake Modules package, or ECM, adds to the modules provided by CMake.
   description: |
     The Extra CMake Modules package, or ECM, adds to the modules provided by CMake,
     including ones used by find_package() to find common software, ones that can be
