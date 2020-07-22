@@ -5,7 +5,7 @@ Home: https://api.kde.org/frameworks/extra-cmake-modules/html/index.html
 
 Package license: BSD-3-Clause
 
-Feedstock license: BSD 3-Clause
+Feedstock license: BSD-3-Clause
 
 Summary: The Extra CMake Modules package, or ECM, adds to the modules provided by CMake.
 
