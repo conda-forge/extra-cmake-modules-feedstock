@@ -5,9 +5,13 @@ Home: https://api.kde.org/frameworks/extra-cmake-modules/html/index.html
 
 Package license: BSD-3-Clause
 
-Feedstock license: BSD-3-Clause
+Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/extra-cmake-modules-feedstock/blob/master/LICENSE.txt)
 
 Summary: The Extra CMake Modules package, or ECM, adds to the modules provided by CMake.
+
+Development: https://cgit.kde.org/extra-cmake-modules.git
+
+Documentation: https://api.kde.org/ecm/manual/ecm.7.html
 
 The Extra CMake Modules package, or ECM, adds to the modules provided by CMake,
 including ones used by find_package() to find common software, ones that can be
