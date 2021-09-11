@@ -1,5 +1,5 @@
 {% set name = "extra-cmake-modules" %}
-{% set version = "5.85.0" %}
+{% set version = "5.86.0" %}
 {% set major_minor = ".".join(version.split(".")[:2]) %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://download.kde.org/stable/frameworks/{{ major_minor }}/extra-cmake-modules-{{ version }}.tar.xz
-  sha256: 7a4209c3b113dc50250920186a2d30b71870e11ebb92a700a611b423ce6b6634
+  sha256: aacc5ccdc5799efe34e2dae33418c379466caf7c9802b78348ccfb5782fe6ab5
 
 build:
   number: 0
