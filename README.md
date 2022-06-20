@@ -179,4 +179,5 @@ Feedstock Maintainers
 =====================
 
 * [@scopatz](https://github.com/scopatz/)
+* [@zklaus](https://github.com/zklaus/)
 
