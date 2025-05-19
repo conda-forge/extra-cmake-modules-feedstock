@@ -20,13 +20,13 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - make
-    - cmake >=3.5
+    - cmake >=3.5,<4
   host:
-    - cmake >=3.5
+    - cmake >=3.5,<4
     - qt-main
     - mesalib
   run:
-    - cmake >=3.5
+    - cmake >=3.5,<4
 
 test:
   commands:
