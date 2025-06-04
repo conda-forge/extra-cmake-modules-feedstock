@@ -1,5 +1,5 @@
 {% set name = "extra-cmake-modules" %}
-{% set version = "6.12.0" %}
+{% set version = "6.13.0" %}
 {% set major_minor = ".".join(version.split(".")[:2]) %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://download.kde.org/stable/frameworks/{{ major_minor }}/extra-cmake-modules-{{ version }}.tar.xz
-  sha256: e54e87365e193c806966e9698320bde81981219574721ff1970a98163c8ed5a0
+  sha256: 7006017c00c817ff4c056995146d271791d1487a398d39ea6cac1cd59a8bf402
 
 build:
   number: 0
@@ -20,13 +20,13 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
     - make
-    - cmake >=3.5
+    - cmake >=3.5,<4
   host:
-    - cmake >=3.5
+    - cmake >=3.5,<4
     - qt-main
     - mesalib
   run:
-    - cmake >=3.5
+    - cmake >=3.5,<4
 
 test:
   commands:
