@@ -24,7 +24,7 @@ requirements:
   host:
     - cmake >=3.5,<4
     - qt-main
-    - mesalib
+    - libgl-devel  # [linux]
   run:
     - cmake >=3.5,<4
 
