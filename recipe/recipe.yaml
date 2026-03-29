@@ -2,7 +2,7 @@ schema_version: 1
 
 context:
   version: "6.24.0"
-  major_minor: ${{ (version | split(".")[:2]) | join(".") }}
+  major_minor: ${{ (version | split("."))[:2] | join(".") }}
 
 package:
   name: extra-cmake-modules
