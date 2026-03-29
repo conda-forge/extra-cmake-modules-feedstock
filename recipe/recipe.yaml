@@ -1,0 +1,60 @@
+schema_version: 1
+
+context:
+  version: "6.24.0"
+  major_minor: ${{ (version | split("."))[:2] | join(".") }}
+
+package:
+  name: extra-cmake-modules
+  version: ${{ version }}
+
+source:
+  url: https://download.kde.org/stable/frameworks/${{ major_minor }}/extra-cmake-modules-${{ version }}.tar.xz
+  sha256: 8ef3f7e176588e099c02559d20ddf4fed0590f92c168f0bcc60a7e638ba1e6a3
+
+build:
+  number: 0
+  skip: win
+
+requirements:
+  build:
+    - ${{ stdlib('c') }}
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - make
+    - cmake >=3.5,<4
+  host:
+    - cmake >=3.5,<4
+    - qt-main
+    - if: linux
+      then: libgl-devel
+  run:
+    - cmake >=3.5,<4
+
+tests:
+  - script:
+      - test -f $PREFIX/share/ECM/cmake/ECMConfig.cmake
+
+about:
+  license: BSD-3-Clause
+  license_file: COPYING-CMAKE-SCRIPTS
+  summary: The Extra CMake Modules package, or ECM, adds to the modules provided by CMake.
+  description: |
+    The Extra CMake Modules package, or ECM, adds to the modules provided by CMake,
+    including ones used by find_package() to find common software, ones that can be
+    used directly in CMakeLists.txt files to perform common tasks and toolchain files
+    that must be specified on the commandline by the user.
+
+    In addition, it provides common build settings used in software produced by the KDE community.
+
+    While the driving force of this module is to reduce duplication in CMake scripts
+    across KDE software, it is intended to be useful for any software that uses the
+    CMake build system.
+  homepage: https://api.kde.org/frameworks/extra-cmake-modules/html/index.html
+  repository: https://cgit.kde.org/extra-cmake-modules.git
+  documentation: https://api.kde.org/ecm/manual/ecm.7.html
+
+extra:
+  recipe-maintainers:
+    - zklaus
+    - scopatz

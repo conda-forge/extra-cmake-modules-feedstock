@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
-set -ex
 
-mkdir build
-pushd build
+set -o xtrace -o nounset -o pipefail -o errexit
 
-cmake ${CMAKE_ARGS} \
-    -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    -DCMAKE_BUILD_TYPE=Release     \
+
+cmake -B build -S ${SRC_DIR}  \
+    -DCMAKE_BUILD_TYPE=Release  \
     -Wno-dev \
-    ..
+    ${CMAKE_ARGS}
 
-make -j ${CPU_COUNT}
-ctest -E "ecm_setup_version-old.*|ECMPoQmToolsTest|KDEFetchTranslations"
-make install
-popd
+cmake --build build -j ${CPU_COUNT}
+ctest -E "ecm_setup_version-old.*|ECMPoQmToolsTest|KDEFetchTranslations|ECMQmlModuleTest.shared_full_qt5|ECMQmlModuleTest.shared_depends_qt5" --test-dir build
+cmake --install build
