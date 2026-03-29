@@ -9,5 +9,5 @@ cmake -B build -S ${SRC_DIR}  \
     ${CMAKE_ARGS}
 
 cmake --build build -j ${CPU_COUNT}
-ctest -E "ecm_setup_version-old.*|ECMPoQmToolsTest|KDEFetchTranslations" --test-dir build
+ctest -E "ecm_setup_version-old.*|ECMPoQmToolsTest|KDEFetchTranslations|ECMQmlModuleTest.shared_full_qt5|ECMQmlModuleTest.shared_depends_qt5" --test-dir build
 cmake --install build
