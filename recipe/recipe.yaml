@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "6.24.0"
+  version: "6.32.0"
   major_minor: ${{ (version | split("."))[:2] | join(".") }}
 
 package:
@@ -10,11 +10,12 @@ package:
 
 source:
   url: https://download.kde.org/stable/frameworks/${{ major_minor }}/extra-cmake-modules-${{ version }}.tar.xz
-  sha256: 8ef3f7e176588e099c02559d20ddf4fed0590f92c168f0bcc60a7e638ba1e6a3
+  sha256: 305f4e2b82eb073be6ac3e50ace85578b3c0c409be262ccc51d445449e3d9312
+  patches:
+    - patches/windows-test-fixes.patch
 
 build:
   number: 0
-  skip: win
 
 requirements:
   build:
@@ -23,6 +24,8 @@ requirements:
     - ${{ compiler('cxx') }}
     - make
     - cmake >=3.5,<4
+    - if: win
+      then: ninja
   host:
     - cmake >=3.5,<4
     - qt-main
@@ -32,8 +35,16 @@ requirements:
     - cmake >=3.5,<4
 
 tests:
-  - script:
-      - test -f $PREFIX/share/ECM/cmake/ECMConfig.cmake
+  - if: unix
+    then:
+      package_contents:
+        files:
+          - share/ECM/cmake/ECMConfig.cmake
+  - if: win
+    then:
+      package_contents:
+        files:
+          - Library/share/ECM/cmake/ECMConfig.cmake
 
 about:
   license: BSD-3-Clause

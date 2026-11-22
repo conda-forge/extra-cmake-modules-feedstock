@@ -1,0 +1,180 @@
+# Fix the ECM test suite in conda-forge's Windows build environment
+# (test-only change; no effect on installed package contents):
+#
+# 1. ECMAddTests nameprefix_by_path_tests: the 7-level-deep test tree
+#    pushes cl.exe object file paths beyond the 260-char Windows
+#    MAX_PATH in the conda-forge work tree (error C1083). The directory
+#    names are test data only, so the chain is renamed to single letters
+#    and moved two levels shallower (deepest object path 299 -> 206
+#    characters). All assertions are preserved.
+#
+# 2. ECMConfiguredInstallTest / ECMGenerateDBusServiceFileTest: CMake
+#    writes CRLF on Windows while the expected files in the tarball are
+#    LF, so the byte-exact compare_files check fails. --ignore-eol is a
+#    no-op on unix (LF == LF) and removes the false failure on Windows.
+#
+# Proposed for upstream KDE; drop this patch once taken upstream.
+diff -ruN a/tests/ECMAddTests/nameprefix_by_path_tests/a/b/c/d/e/f/CMakeLists.txt b/tests/ECMAddTests/nameprefix_by_path_tests/a/b/c/d/e/f/CMakeLists.txt
+--- /dev/null
++++ b/tests/ECMAddTests/nameprefix_by_path_tests/a/b/c/d/e/f/CMakeLists.txt	2026-11-21 20:26:01.204836351 +0100
+@@ -0,0 +1,29 @@
++# SPDX-FileCopyrightText: None
++# SPDX-License-Identifier: CC0-1.0
++
++# prefix preset by path-derived value
++ecm_add_test(
++    TEST_NAME "main_nodir"
++    ${main_cpp}
++)
++
++# override of path-derived value by explicit arg
++ecm_add_test(
++    NAME_PREFIX "override_by_arg-"
++    TEST_NAME "main_nodir2"
++    ${main_cpp}
++)
++
++# override of path-derived value by explicit NO_NAME_PREFIX
++ecm_add_test(
++    NO_NAME_PREFIX
++    TEST_NAME "main_nodir3"
++    ${main_cpp}
++)
++
++# check
++assert_test_name_prefix("a-c-new_name-e-")
++
++assert_test_name("a-c-new_name-e-" "main_nodir")
++assert_test_name("override_by_arg-" "main_nodir2")
++assert_test_name("" "main_nodir3")
+diff -ruN a/tests/ECMAddTests/nameprefix_by_path_tests/CMakeLists.txt b/tests/ECMAddTests/nameprefix_by_path_tests/CMakeLists.txt
+--- a/tests/ECMAddTests/nameprefix_by_path_tests/CMakeLists.txt	2026-11-21 20:25:53.228793255 +0100
++++ b/tests/ECMAddTests/nameprefix_by_path_tests/CMakeLists.txt	2026-11-21 20:26:13.874904814 +0100
+@@ -18,4 +18,28 @@
+ 
+ set(ECM_TEST_NAME_PREFIX_STRATEGY "PATH")
+ 
++# shallow chain with short dir names to keep Windows object file paths < MAX_PATH
++ecm_test_set_dir_properties(
++    DIR a/b
++    PREFIX_NAME_IGNORE
++)
++list(APPEND ECM_TEST_NAME_PREFIX_IGNORE_DIRS "c")
++ecm_test_set_dir_properties(
++    DIR a/b/c
++    PREFIX_NAME_NOT_IGNORE
++)
++ecm_test_set_dir_properties(
++    DIR a/b/c/d
++    PREFIX_NAME "new_name"
++)
++ecm_test_set_dir_properties(
++    DIR a
++    FIRST_PREFIX_NAME
++)
++ecm_test_set_dir_properties(
++    DIR a/b/c/d/e
++    LAST_PREFIX_NAME
++)
++
++add_subdirectory(a/b/c/d/e/f)
+ add_subdirectory(dir_a)
+diff -ruN a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/CMakeLists.txt b/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/CMakeLists.txt
+--- a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/CMakeLists.txt	2026-11-21 20:25:53.228793255 +0100
++++ b/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/CMakeLists.txt	2026-11-21 20:30:47.911385207 +0100
+@@ -7,7 +7,6 @@
+ add_subdirectory(dir_bypropignored)
+ add_subdirectory(dir_first)
+ add_subdirectory(dir_renamed)
+-add_subdirectory(dir_nodirs)
+ 
+ # default from source name., prefix preset by path-derived value
+ ecm_add_test(
+diff -ruN a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/CMakeLists.txt b/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/CMakeLists.txt
+--- a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/CMakeLists.txt	2026-11-21 20:25:53.228793255 +0100
++++ /dev/null
+@@ -1,26 +0,0 @@
+-# SPDX-FileCopyrightText: None
+-# SPDX-License-Identifier: CC0-1.0
+-
+-ecm_test_set_dir_properties(
+-    DIR nodir_first/nodir_ignored
+-    PREFIX_NAME_IGNORE
+-)
+-list(APPEND ECM_TEST_NAME_PREFIX_IGNORE_DIRS "nodir_notignored")
+-ecm_test_set_dir_properties(
+-    DIR nodir_first/nodir_ignored/nodir_notignored
+-    PREFIX_NAME_NOT_IGNORE
+-)
+-ecm_test_set_dir_properties(
+-    DIR nodir_first/nodir_ignored/nodir_notignored/nodir_renamed
+-    PREFIX_NAME "new_name"
+-)
+-ecm_test_set_dir_properties(
+-    DIR nodir_first
+-    FIRST_PREFIX_NAME
+-)
+-ecm_test_set_dir_properties(
+-    DIR nodir_first/nodir_ignored/nodir_notignored/nodir_renamed/nodir_last
+-    LAST_PREFIX_NAME
+-)
+-
+-add_subdirectory(nodir_first/nodir_ignored/nodir_notignored/nodir_renamed/nodir_last/dir_afterlast)
+\ No newline at end of file
+diff -ruN a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/nodir_first/nodir_ignored/nodir_notignored/nodir_renamed/nodir_last/dir_afterlast/CMakeLists.txt b/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/nodir_first/nodir_ignored/nodir_notignored/nodir_renamed/nodir_last/dir_afterlast/CMakeLists.txt
+--- a/tests/ECMAddTests/nameprefix_by_path_tests/dir_a/dir_nodirs/nodir_first/nodir_ignored/nodir_notignored/nodir_renamed/nodir_last/dir_afterlast/CMakeLists.txt	2026-11-21 20:25:53.229793260 +0100
++++ /dev/null
+@@ -1,29 +0,0 @@
+-# SPDX-FileCopyrightText: None
+-# SPDX-License-Identifier: CC0-1.0
+-
+-# prefix preset by path-derived value
+-ecm_add_test(
+-    TEST_NAME "main_nodir"
+-    ${main_cpp}
+-)
+-
+-# override of path-derived value by explicit arg
+-ecm_add_test(
+-    NAME_PREFIX "override_by_arg-"
+-    TEST_NAME "main_nodir2"
+-    ${main_cpp}
+-)
+-
+-# override of path-derived value by explicit NO_NAME_PREFIX
+-ecm_add_test(
+-    NO_NAME_PREFIX
+-    TEST_NAME "main_nodir3"
+-    ${main_cpp}
+-)
+-
+-# check
+-assert_test_name_prefix("nodir_first-nodir_notignored-new_name-nodir_last-")
+-
+-assert_test_name("nodir_first-nodir_notignored-new_name-nodir_last-" "main_nodir")
+-assert_test_name("override_by_arg-" "main_nodir2")
+-assert_test_name("" "main_nodir3")
+diff -ruN a/tests/ECMConfiguredInstallTest/check_tree.cmake.in b/tests/ECMConfiguredInstallTest/check_tree.cmake.in
+--- a/tests/ECMConfiguredInstallTest/check_tree.cmake.in	2026-11-21 20:25:53.229793260 +0100
++++ b/tests/ECMConfiguredInstallTest/check_tree.cmake.in	2026-11-21 20:26:19.517935301 +0100
+@@ -8,7 +8,7 @@
+     foreach(file ${files})
+         get_filename_component(name ${file} NAME)
+ 
+-        execute_process(COMMAND ${CMAKE_COMMAND} -E compare_files ${file} "${output}/${name}"
++        execute_process(COMMAND ${CMAKE_COMMAND} -E compare_files --ignore-eol ${file} "${output}/${name}"
+                                         RESULT_VARIABLE test_result
+         )
+         If (NOT test_result EQUAL 0)
+diff -ruN a/tests/ECMGenerateDBusServiceFileTest/check_tree.cmake.in b/tests/ECMGenerateDBusServiceFileTest/check_tree.cmake.in
+--- a/tests/ECMGenerateDBusServiceFileTest/check_tree.cmake.in	2026-11-21 20:25:53.229793260 +0100
++++ b/tests/ECMGenerateDBusServiceFileTest/check_tree.cmake.in	2026-11-21 20:26:19.517935301 +0100
+@@ -13,7 +13,7 @@
+     foreach(file ${files})
+         get_filename_component(name ${file} NAME)
+ 
+-        execute_process(COMMAND ${CMAKE_COMMAND} -E compare_files ${file} "${output}/${name}"
++        execute_process(COMMAND ${CMAKE_COMMAND} -E compare_files --ignore-eol ${file} "${output}/${name}"
+                                         RESULT_VARIABLE test_result
+         )
+         If (NOT test_result EQUAL 0)
